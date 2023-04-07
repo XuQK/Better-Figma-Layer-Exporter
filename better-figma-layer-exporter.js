@@ -8,7 +8,7 @@
 // @description:zh-CN  更方便的 Figma 图层导出，主要功能：1. 选定图层直接导出为 png 并按 dpi 分配到对应 dpi 的 drawable 文件夹; 2. 支持将 PNG 转换成 WebP 再导出; 3. 支持导出经 SVGO 优化的 svg 图片，后两者需要 https://github.com/XuQK/Android-Tool-Server 支持
 // @author       XuQK
 // @match        https://www.figma.com/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=tampermonkey.net
+// @icon         https://github.com/XuQK/Better-Figma-Layer-Exporter/blob/master/assets/icon.jpeg?raw=true
 // @grant        unsafeWindow
 // @grant        GM_setValue
 // @grant        GM_getValue
