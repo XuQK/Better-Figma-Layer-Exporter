@@ -8,9 +8,9 @@
 
 # 脚本功能
 
-在 Figma 的 Export 处增加三个按钮：
+在 Figma 的 Export 处增加三个按钮，提供一键将 png 从 Figma 图层导入到 drawable-*dpi 文件夹下的能力：
 
-![Result](assets/extra-button.png)
+![Result](assets/result.png)
 
 ## 导出 PNG 到指定 res 目录
 
@@ -22,7 +22,7 @@
 
 由于此目录下仅有`xhdpi`和`hdpi`两个文件夹，因此脚本会去下载选定图层对应 dpi 的 png 图片，一共 4 张，然后自动下载到对应 dpi 目录下
 
-![Export PNG result](assets/script-export-png.png)
+![Export PNG result](assets/script-export-png-result.png)
 
 > 每次导出的文件夹会自动记录，记录的 key 为"figma 项目" + "哪个导出按钮"，也是个相当方便的功能，不需要每次导出都要一层层的去选目录了~。
 
