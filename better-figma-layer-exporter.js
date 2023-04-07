@@ -2,7 +2,7 @@
 // @name         Better Figma Layer Exporter
 // @name:zh-CN   Better Figma Layer Exporter
 // @namespace    https://github.com/XuQK/Better-Figma-Layer-Exporter
-// @version      0.1
+// @version      1.0.1
 // @license      MIT
 // @description A more convenient Figma layer export solution, featuring the following main functions: 1. Direct export of selected layers as PNGs and automatically assigning them to their corresponding DPI drawable folders; 2. Support for converting PNGs to WebP format before exporting; 3. Support for exporting SVGs optimized through SVGO. The latter two features require support from https://github.com/XuQK/Android-Tool-Server.
 // @description:zh-CN  更方便的 Figma 图层导出，主要功能：1. 选定图层直接导出为 png 并按 dpi 分配到对应 dpi 的 drawable 文件夹; 2. 支持将 PNG 转换成 WebP 再导出; 3. 支持导出经 SVGO 优化的 svg 图片，后两者需要 https://github.com/XuQK/Android-Tool-Server 支持
@@ -445,7 +445,7 @@
      * @return {[Image]}
      */
     function getSelectedLayerList() {
-        return figma.currentPage.selection.map(node => new Image(node.id, node.name));
+        return figma.currentPage.selection.map(node => new Image(node.id, node.name.replace(/[^a-z0-9_]/g)));
     }
 
     /**
