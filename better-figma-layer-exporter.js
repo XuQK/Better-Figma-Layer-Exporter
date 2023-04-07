@@ -445,7 +445,7 @@
      * @return {[Image]}
      */
     function getSelectedLayerList() {
-        return figma.currentPage.selection.map(node => new Image(node.id, node.name.replace(/[^a-z0-9_]/g)));
+        return figma.currentPage.selection.map(node => new Image(node.id, node.name.replace(/[^a-z0-9_]/g, "")));
     }
 
     /**
