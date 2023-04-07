@@ -49,7 +49,7 @@
 ## 安装
 
 1. 首先需要插件 Tampermonkey 或 ScriptCat 之类的脚本管理插件，如果未安装，自行到 Chrome 插件商店搜索安装即可
-2. 然后打开 GreasyFork，搜索脚本"Better Figma Layer Exporter"
+2. 然后从 GreasyFork 或这 ScriptCat 安装脚本 https://greasyfork.org/zh-CN/scripts/463459-better-figma-layer-exporter 或者 https://scriptcat.org/script-show-page/945 安装即可。
 
 ## 使用
 
