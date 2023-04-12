@@ -28,8 +28,6 @@
 
 ## 经 SVGO 优化并导出
 
-> 需要后台配合，详见下文"扩展功能"
-
 导出的 svg，经过 svgo 优化再存储，为何建议经优化再使用，主要还是性能问题（咱也没测试，官方说有好处那就当有好处了~）
 
 以下是未优化和优化过后再导入 AndroidStudio 的对比：
@@ -69,7 +67,7 @@
 
 ![Script settings enter](assets/script-settings-enter.png)
 
-在弹出来的弹窗中，填入必要的信息，其中，FigmaToken 是必须的：
+在弹出来的弹窗中，填入必要的信息，其中，只有 FigmaToken 是必须的：
 
 ![Script settings](assets/script-settings.png)
 
@@ -79,14 +77,11 @@
 
 ### 扩展功能
 
-此时，只有第二个"导出 png 到指定 res 目录"是可用的。
+svg 优化和 png 转 webp 需要用到后台服务，目前是一个白嫖的 node 服务器，如果怕图片泄露之类的事儿，你也可以将这个服务器跑在自己本机上。
 
-因为通过 svgo 优化 svg，和直接将 PNG 转换为 WebP 输出，需要后台能力配合。
-
-因为需要运行一个 node 后台，所以首先需要安装 node: https://nodejs.org/zh-cn 。
+首先需要安装 node: https://nodejs.org/zh-cn 。
 
 将此项目：[Android Tool Server](https://github.com/XuQK/Android-Tool-Server) clone 下来后，切换到目录下，直接运行`npm run start`。
 
-然后在脚本的 Settings 的 Server host 中填入`http://127.0.0.1:6636`即可。
+然后在脚本的 Settings 的 url 栏目中填入 `http://127.0.0.1:6636/svgOptimizer` 和 `http://127.0.0.1:6636/webpConvetor` 即可。
 
-也可以将后台脚本部署在自己的服务器使用。
