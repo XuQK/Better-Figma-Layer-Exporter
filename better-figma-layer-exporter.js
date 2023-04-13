@@ -2,7 +2,7 @@
 // @name         Better Figma Layer Exporter
 // @name:zh-CN   Better Figma Layer Exporter
 // @namespace    https://github.com/XuQK/Better-Figma-Layer-Exporter
-// @version      1.1.0
+// @version      1.1.1
 // @license      MIT
 // @description A more convenient Figma layer export solution, featuring the following main functions: 1. Direct export of selected layers as PNGs and automatically assigning them to their corresponding DPI drawable folders; 2. Support for converting PNGs to WebP format before exporting; 3. Support for exporting SVGs optimized through SVGO.
 // @description:zh-CN  更方便的 Figma 图层导出，主要功能：1. 选定图层直接导出为 png 并按 dpi 分配到对应 dpi 的 drawable 文件夹; 2. 支持将 PNG 转换成 WebP 再导出; 3. 支持导出经 SVGO 优化的 svg 图片。
@@ -81,26 +81,34 @@
     </div>
     <div style="display: flex; align-items: center">
         <label for="kd-webp-quality" style="font-size: 18px; width: 10em">WebP quality</label>
-        <input id="kd-webp-quality" class="swal2-input" style="margin: 8px" value="${convertWebpQuality}">
+        <input id="kd-webp-quality" class="swal2-input" style="margin: 8px" value="${webpQuality}">
     </div>
+    <div style="display: flex; align-items: center; height: 4em">
+        <label for="kd-mode" style="font-size: 18px; width: 10em">Day/Night Mode</label>
+        <input id="kd-mode-day" name="kd-mode" value="day" type="radio" style="margin: 8px">Day</input>
+        <input id="kd-mode-night" name="kd-mode" value="night" type="radio" style="margin: 8px">Night</input>
+    </div>
+    <p></p>
     <p style="text-align: start; color: #FF5252">PS:</p>
     <p style="text-align: start; font-size: 14px; color: #FF5252">1. SVG 优化和 PNG 转 WebP 的需要后台能力，目前是白嫖的 node 服务器，资源有限，请温柔使用~</p>
-    <div style="display: flex; align-items: center">
     <p style="text-align: start; font-size: 14px; color: #FF5252">2. 如果想将此 node 服务器运行在自己本地，参见 <a href="https://github.com/XuQK/Better-Figma-Layer-Exporter#扩展功能" target="_blank">https://github.com/XuQK/Better-Figma-Layer-Exporter#扩展功能</a></p>
     
     </div>
-    
           `,
             width: 600,
             focusConfirm: false,
             showCancelButton: true,
+            didOpen() {
+                document.getElementById(`kd-mode-${mode}`).checked = true;
+            },
             preConfirm: () => {
                 return [
                     document.getElementById("kd-figma-token").value,
                     document.getElementById("kd-server-svg-optimizer").value,
                     document.getElementById("kd-server-png-convert-to-webp").value,
                     document.getElementById("kd-svg-precision").value,
-                    document.getElementById("kd-webp-quality").value
+                    document.getElementById("kd-webp-quality").value,
+                    document.querySelector("input[name='kd-mode']:checked").value
                 ];
             }
         }).then(value => {
@@ -109,13 +117,15 @@
             svgOptimizerRequestUrl = params[1];
             pngConvertToWebpRequestUrl = params[2];
             svgPrecision = params[3];
-            convertWebpQuality = params[4];
+            webpQuality = params[4];
+            mode = params[5];
 
             GM_setValue("figmaToken", figmaToken);
             GM_setValue("svgOptimizerRequestUrl", svgOptimizerRequestUrl);
             GM_setValue("pngConvertToWebpRequestUrl", pngConvertToWebpRequestUrl);
             GM_setValue("svgPrecision", svgPrecision);
-            GM_setValue("webpQuality", convertWebpQuality);
+            GM_setValue("webpQuality", webpQuality);
+            GM_setValue("mode", mode);
         });
     }
 
@@ -127,7 +137,9 @@
     let svgPrecision = GM_getValue("svgPrecision", 1);
     // png 专用
     // webp 转换质量，0-100，默认 75
-    let convertWebpQuality = GM_getValue("webpQuality", 75);
+    let webpQuality = GM_getValue("webpQuality", 75);
+    // 是否暗色模式
+    let mode = GM_getValue("mode", "day");
 
     class Image {
         /**
@@ -170,21 +182,53 @@
         }
     }
 
-    const dirNameToScaleMap = new Map();
-    dirNameToScaleMap.set("drawable-ldpi", 0.75);
-    dirNameToScaleMap.set("drawable-mdpi", 1);
-    dirNameToScaleMap.set("drawable-hdpi", 1.5);
-    dirNameToScaleMap.set("drawable-xhdpi", 2);
-    dirNameToScaleMap.set("drawable-xxhdpi", 3);
-    dirNameToScaleMap.set("drawable-xxxhdpi", 4);
+    function dirNameToScaleMap() {
+        if (mode === "day") {
+            return _dirNameToScaleMapDay;
+        } else {
+            return _dirNameToScaleMapNight;
+        }
+    }
 
-    const scaleToDirNameMap = new Map();
-    scaleToDirNameMap.set(0.75, "drawable-ldpi");
-    scaleToDirNameMap.set(1, "drawable-mdpi");
-    scaleToDirNameMap.set(1.5, "drawable-hdpi");
-    scaleToDirNameMap.set(2, "drawable-xhdpi");
-    scaleToDirNameMap.set(3, "drawable-xxhdpi");
-    scaleToDirNameMap.set(4, "drawable-xxxhdpi");
+    function scaleToDirNameMap() {
+        if (mode === "day") {
+            return _scaleToDirNameMapDay;
+        } else {
+            return _scaleToDirNameMapNight;
+        }
+    }
+
+    const _dirNameToScaleMapDay = new Map();
+    _dirNameToScaleMapDay.set("drawable-ldpi", 0.75);
+    _dirNameToScaleMapDay.set("drawable-mdpi", 1);
+    _dirNameToScaleMapDay.set("drawable-hdpi", 1.5);
+    _dirNameToScaleMapDay.set("drawable-xhdpi", 2);
+    _dirNameToScaleMapDay.set("drawable-xxhdpi", 3);
+    _dirNameToScaleMapDay.set("drawable-xxxhdpi", 4);
+
+    const _scaleToDirNameMapDay = new Map();
+    _scaleToDirNameMapDay.set(0.75, "drawable-ldpi");
+    _scaleToDirNameMapDay.set(1, "drawable-mdpi");
+    _scaleToDirNameMapDay.set(1.5, "drawable-hdpi");
+    _scaleToDirNameMapDay.set(2, "drawable-xhdpi");
+    _scaleToDirNameMapDay.set(3, "drawable-xxhdpi");
+    _scaleToDirNameMapDay.set(4, "drawable-xxxhdpi");
+
+    const _dirNameToScaleMapNight = new Map();
+    _dirNameToScaleMapNight.set("drawable-night-ldpi", 0.75);
+    _dirNameToScaleMapNight.set("drawable-night-mdpi", 1);
+    _dirNameToScaleMapNight.set("drawable-night-hdpi", 1.5);
+    _dirNameToScaleMapNight.set("drawable-night-xhdpi", 2);
+    _dirNameToScaleMapNight.set("drawable-night-xxhdpi", 3);
+    _dirNameToScaleMapNight.set("drawable-night-xxxhdpi", 4);
+
+    const _scaleToDirNameMapNight = new Map();
+    _scaleToDirNameMapNight.set(0.75, "drawable-night-ldpi");
+    _scaleToDirNameMapNight.set(1, "drawable-night-mdpi");
+    _scaleToDirNameMapNight.set(1.5, "drawable-night-hdpi");
+    _scaleToDirNameMapNight.set(2, "drawable-night-xhdpi");
+    _scaleToDirNameMapNight.set(3, "drawable-night-xxhdpi");
+    _scaleToDirNameMapNight.set(4, "drawable-night-xxxhdpi");
 
     const svgButtonId = "svgo-button";
     const svgoButton = document.createElement("button");
@@ -301,11 +345,11 @@
      */
     async function optimizeSvg(imageList, precision) {
         try {
-            const svgContentList = await Promise.all(imageList.map(image => image.originalContent.text()))
+            const svgContentList = await Promise.all(imageList.map(image => image.originalContent.text()));
             const requestBody = {
                 precision: precision,
                 svgContentList: svgContentList
-            }
+            };
             const response = await fetch(getSvgOptimizerRequestUrl(), {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -316,7 +360,7 @@
                 image.processedContent = new Blob([responseJson[index]], {
                     type: image.originalContent.type
                 });
-            })
+            });
 
             return imageList;
         } catch (e) {
@@ -374,7 +418,7 @@
     async function exportPng(convertToWebp, dirHandle, fileKey, layerList, scaleList) {
         let imageList = await downloadSelectedLayerAsPng(dirHandle, fileKey, layerList, scaleList);
         if (convertToWebp) {
-            imageList = await transferPngListToWebp(imageList, convertWebpQuality);
+            imageList = await transferPngListToWebp(imageList, webpQuality);
             imageList.forEach((image) => {
                 // 只有在 webp 小于 png 时，才存储为 webp
                 if (image.processedContent.size > image.originalContent.size) {
@@ -404,7 +448,7 @@
         const scaleList = [];
         for await (const file of dirHandle.values()) {
             if (file.kind === "directory") {
-                const scale = dirNameToScaleMap.get(file.name);
+                const scale = dirNameToScaleMap().get(file.name);
                 if (scale !== undefined) {
                     scaleList.push(scale);
                 }
@@ -454,15 +498,15 @@
                             "quality": quality
                         },
                         body: image.originalContent
-                    })
+                    });
                 })
             );
 
             for (const image of imageList) {
                 const index = imageList.indexOf(image);
-                image.processedContent = await responseList[index].blob()
+                image.processedContent = await responseList[index].blob();
             }
-            return imageList
+            return imageList;
         } catch (e) {
             console.error(e);
             throw new Error("png 转 webp 操作失败，请检查是否开启优化服务器");
@@ -563,7 +607,7 @@
                 drawableDirHandle = dirHandle;
             } else {
                 // 其它图片需要保存到对应 dpi 的目录下
-                const drawableDirName = scaleToDirNameMap.get(image.scale);
+                const drawableDirName = scaleToDirNameMap().get(image.scale);
                 drawableDirHandle = await dirHandle.getDirectoryHandle(drawableDirName);
             }
             const fileHandle = await drawableDirHandle.getFileHandle(`${prefix}_${image.name}.${image.format}`, {create: true});
