@@ -85,3 +85,8 @@ svg 优化和 png 转 webp 需要用到后台服务，目前是一个白嫖的 n
 
 然后在脚本的 Settings 的 url 栏目中填入 `http://127.0.0.1:6636/svgOptimizer` 和 `http://127.0.0.1:6636/webpConvetor` 即可。
 
+# Change Log
+
+1.1.1 支持导出到黑夜模式 drawable 文件夹下
+
+1.1.0 增加服务器支持，现在不需要本地开启 node 服务器也能使用所有功能
