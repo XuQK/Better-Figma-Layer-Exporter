@@ -2,7 +2,7 @@
 // @name         Better Figma Layer Exporter
 // @name:zh-CN   Better Figma Layer Exporter
 // @namespace    https://github.com/XuQK/Better-Figma-Layer-Exporter
-// @version      1.1.1
+// @version      1.1.2
 // @license      MIT
 // @description A more convenient Figma layer export solution, featuring the following main functions: 1. Direct export of selected layers as PNGs and automatically assigning them to their corresponding DPI drawable folders; 2. Support for converting PNGs to WebP format before exporting; 3. Support for exporting SVGs optimized through SVGO.
 // @description:zh-CN  更方便的 Figma 图层导出，主要功能：1. 选定图层直接导出为 png 并按 dpi 分配到对应 dpi 的 drawable 文件夹; 2. 支持将 PNG 转换成 WebP 再导出; 3. 支持导出经 SVGO 优化的 svg 图片。
@@ -269,21 +269,32 @@
         onClickDownloadPng(true).then();
     });
 
-    // 监听 body 元素变动，根据情况插入导出按钮
+    // 监听 body 元素变动，根据情况插入导出按钮（对于无编辑器权限的使用者）
     new MutationObserver(() => {
-        const container = document.querySelector("div.raw_components--panel--YDedw.export_panel--standalonePanel--yXYPM");
-        if (container !== null) {
+        let c = null;
+        const anchorElemForGuest = document.querySelector("div.raw_components--panel--YDedw.export_panel--standalonePanel--yXYPM");
+        if (anchorElemForGuest !== null) {
+            c = anchorElemForGuest.parentElement;
+        } else {
+            const nodeList = document.querySelectorAll("div.draggable_list--panelTitleText--Bj2Hu")
+            const anchorElemForOwner = Array.from(nodeList).find(node => node.innerText === "Export")
+            if (anchorElemForOwner !== null) {
+                c = anchorElemForOwner.parentElement.parentElement.parentElement.parentElement.parentElement
+            }
+        }
+        if (c !== null) {
             if (document.getElementById(svgButtonId) === null) {
-                container.parentElement.appendChild(svgoButton);
+                c.appendChild(svgoButton);
             }
             if (document.getElementById(pngButtonId) === null) {
-                container.parentElement.appendChild(pngButton);
+                c.appendChild(pngButton);
             }
             if (document.getElementById(webpButtonId) === null) {
-                container.parentElement.appendChild(webpButton);
+                c.appendChild(webpButton);
             }
         }
     }).observe(document.body, {childList: true, subtree: true});
+    // （对于有编辑权限的使用者）
 
     const Toast = Swal.mixin({
         position: "center",
@@ -521,7 +532,7 @@
      * @return {[Image]}
      */
     function getSelectedLayerList() {
-        return figma.currentPage.selection.map(node => new Image(node.id, node.name.toLowerCase().replace(/[^a-z0-9_]/g, "")));
+        return figma.currentPage.selection.map(node => new Image(node.id, node.name.toLowerCase().replace(/[^a-z0-9_]/g, "_")));
     }
 
     /**
@@ -529,7 +540,7 @@
      * @return {string}
      */
     function getRandomPrefix() {
-        return "_" + Math.floor(Math.random() * 9000 + 1000);
+        return "figma" + Math.floor(Math.random() * 9000 + 1000);
     }
 
     /**
